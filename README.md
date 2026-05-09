@@ -1,73 +1,120 @@
-# React + TypeScript + Vite
+# Candy Shop UI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Mobile-first frontend dashboard for candy shop sales management, designed for fast live selling and lightweight POS-like interactions.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React + Vite + TypeScript
+- Zustand (state)
+- Zod (validation)
+- Axios (API)
+- React Router (navigation)
+- Tailwind CSS (styling)
+- jsPDF (session report)
 
-## React Compiler
+## Core Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Authentication with JWT persistence
+- Dashboard with active session summary and totals
+- Candy management (list, create, edit)
+- Session selling screen optimized for mobile touch interactions
+- Optimistic sale registration (`POST /sessions/:id/sales`)
+- Session close flow (`PATCH /sessions/:id/close`) with PDF generation
+- Responsive navigation:
+  - mobile: bottom navigation
+  - desktop: sidebar layout
 
-## Expanding the ESLint configuration
+## Mobile-First UX
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Large touch targets and quick actions
+- Minimal typing during sales
+- Mobile candy cards for live selling
+- Desktop table fallback for dense workflows
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Folder Structure
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```text
+src/
+  api/
+  components/
+  pages/
+  stores/
+  hooks/
+  schemas/
+  layouts/
+  types/
+  utils/
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Environment
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Create `.env` from `.env.example`:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```env
+VITE_API_URL=http://localhost:3000
 ```
+
+If not provided, the app falls back to `/api`.
+
+## Run Locally
+
+```bash
+pnpm install
+pnpm dev
+```
+
+App runs with Vite dev server (default `http://localhost:5173`).
+
+## Production Build
+
+```bash
+pnpm build
+pnpm preview
+```
+
+## Docker
+
+Build and run with Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+Frontend is served by Nginx on `http://localhost:4173`.
+
+## API Integration Contract
+
+- JWT header: `Authorization: Bearer <token>`
+- 401 behavior: clear auth and redirect to `/login`
+- Centralized Axios instance with global toast error handling
+
+Main endpoints used by the UI:
+
+- `POST /auth/login`
+- `GET /candies`
+- `POST /candies`
+- `PATCH /candies/:id`
+- `GET /sessions/current`
+- `POST /sessions`
+- `POST /sessions/:id/sales`
+- `PATCH /sessions/:id/close`
+
+## Session Rules
+
+- Candies start visually with `quantity = 0` on frontend
+- Backend session-candy relation is expected only after first sale
+- Closed sessions are treated as immutable in UI
+
+## Full Flow
+
+1. User logs in
+2. User creates/updates candies
+3. User starts a session
+4. User registers sales quickly from session screen
+5. User finishes session
+6. Frontend generates PDF summary via jsPDF
+
+## Notes
+
+- No frontend tests are required for this project.
+- Linting is available with `pnpm lint`.
