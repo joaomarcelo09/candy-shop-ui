@@ -1,0 +1,15 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "4173:80"
+    networks:
+      - candy-shop-network
+
+networks:
+  candy-shop-network:
+    driver: bridge
