@@ -60,7 +60,7 @@ export function DashboardPage() {
         />
         <StatCard
           eyebrow="Revenue"
-          title="Estimated total"
+          title="Live session total"
           value={formatCurrency(totals.estimatedTotal)}
           accent="◍"
         />

@@ -22,6 +22,30 @@ export interface SessionItem {
   subtotal: number
 }
 
+export interface SessionOrderItem {
+  candyId: string
+  candyName: string
+  unitPrice: number
+  quantity: number
+  subtotal: number
+}
+
+export interface SessionOrder {
+  id: string
+  sessionId: string
+  createdAt: string
+  total: number
+  items: SessionOrderItem[]
+}
+
+export interface DraftOrderItem {
+  candyId: string
+  candyName: string
+  unitPrice: number
+  quantity: number
+  subtotal: number
+}
+
 export interface Session {
   id: string
   status: SessionStatus

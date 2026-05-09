@@ -7,8 +7,9 @@ interface SaleQuantityControlProps {
   onDecrease: () => void
   onIncrease: () => void
   onChange: (value: number) => void
-  onSubmit: () => void
+  onSubmit?: () => void
   submitLabel?: string
+  hideSubmit?: boolean
 }
 
 export function SaleQuantityControl({
@@ -19,6 +20,7 @@ export function SaleQuantityControl({
   onChange,
   onSubmit,
   submitLabel = 'Add sale',
+  hideSubmit = false,
 }: SaleQuantityControlProps) {
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
     const nextValue = Number.parseInt(event.target.value, 10)
@@ -67,15 +69,17 @@ export function SaleQuantityControl({
         </button>
       </div>
 
-      <Button
-        type="button"
-        onClick={onSubmit}
-        disabled={busy}
-        fullWidth
-        className="min-h-10 rounded-xl px-3 py-2 text-xs"
-      >
-        {busy ? 'Saving...' : submitLabel}
-      </Button>
+      {hideSubmit ? null : (
+        <Button
+          type="button"
+          onClick={onSubmit}
+          disabled={busy}
+          fullWidth
+          className="min-h-10 rounded-xl px-3 py-2 text-xs"
+        >
+          {busy ? 'Saving...' : submitLabel}
+        </Button>
+      )}
     </div>
   )
 }

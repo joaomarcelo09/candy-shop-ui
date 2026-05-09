@@ -1,4 +1,4 @@
-import type { Candy, Session, User } from './domain'
+import type { Candy, DraftOrderItem, Session, SessionOrder, User } from './domain'
 
 export interface LoginRequest {
   email: string
@@ -26,12 +26,52 @@ export interface SessionDetailsResponse {
   id: string
   status: 'OPEN' | 'CLOSED'
   total_sold: number
+  totalSold?: number
   date: string
   items: Array<{
-    candy: string
-    price: number
-    quantity_sold: number
-    subtotal: number
+    candy_id?: string
+    candyId?: string
+    candy_name?: string
+    candyName?: string
+    candy?: string
+    price?: number
+    quantity_sold?: number
+    quantity?: number
+    subtotal?: number
+  }>
+}
+
+export interface SessionOrderItemResponse {
+  id?: string
+  candy_id?: string
+  candyId?: string
+  candy_name?: string
+  candyName?: string
+  candy?: string
+  name?: string
+  unit_price?: number
+  unitPrice?: number
+  price?: number
+  quantity: number
+  subtotal?: number
+}
+
+export interface SessionOrderResponse {
+  id: string
+  session_id?: string
+  sessionId?: string
+  created_at?: string
+  createdAt?: string
+  total?: number
+  total_sold?: number
+  totalSold?: number
+  items: SessionOrderItemResponse[]
+}
+
+export interface SessionOrderPayload {
+  items: Array<{
+    candy_id: string
+    quantity: number
   }>
 }
 
@@ -56,14 +96,23 @@ export interface CandyStoreState {
 
 export interface SessionStoreState {
   activeSession: Session | null
+  orders: SessionOrder[]
+  draftOrder: DraftOrderItem[]
   loading: boolean
-  submittingSaleIds: string[]
+  submittingOrder: boolean
+  deletingOrderIds: string[]
   totals: {
     candiesSold: number
     estimatedTotal: number
   }
   fetchCurrentSession: (candies: Candy[]) => Promise<Session | null>
   createSession: (candies: Candy[]) => Promise<void>
-  registerSale: (candies: Candy[], candyId: string, quantity?: number) => Promise<void>
+  fetchSessionOrders: (sessionId: string, candies: Candy[]) => Promise<SessionOrder[]>
+  addCandyToDraft: (candy: Candy) => void
+  updateDraftQuantity: (candyId: string, quantity: number) => void
+  removeDraftItem: (candyId: string) => void
+  clearDraftOrder: () => void
+  submitDraftOrder: (candies: Candy[]) => Promise<void>
+  deleteOrder: (orderId: string, candies: Candy[]) => Promise<void>
   closeSession: () => Promise<void>
 }
