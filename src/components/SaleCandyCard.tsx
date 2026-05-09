@@ -1,19 +1,31 @@
-import { clsx } from 'clsx'
 import type { Candy } from '../types/domain'
 import { formatCurrency } from '../utils/format'
-import { Button } from './ui/Button'
+import { SaleQuantityControl } from './SaleQuantityControl'
 
 interface SaleCandyCardProps {
   candy: Candy
-  quantity: number
+  soldQuantity: number
+  saleQuantity: number
   busy: boolean
-  onAdd: () => void
+  onDecrease: () => void
+  onIncrease: () => void
+  onChange: (value: number) => void
+  onSubmit: () => void
 }
 
-export function SaleCandyCard({ candy, quantity, busy, onAdd }: SaleCandyCardProps) {
+export function SaleCandyCard({
+  candy,
+  soldQuantity,
+  saleQuantity,
+  busy,
+  onDecrease,
+  onIncrease,
+  onChange,
+  onSubmit,
+}: SaleCandyCardProps) {
   return (
-    <article className="glass-card p-4">
-      <div className="flex items-start justify-between gap-3">
+    <article className="glass-card min-w-0 overflow-hidden p-4">
+      <div className="flex min-w-0 items-start justify-between gap-3">
         <div>
           <h3 className="text-lg font-bold text-cocoa-900">{candy.name}</h3>
           <p className="mt-1 text-sm text-cocoa-800/70">{formatCurrency(candy.price)}</p>
@@ -23,37 +35,23 @@ export function SaleCandyCard({ candy, quantity, busy, onAdd }: SaleCandyCardPro
         </span>
       </div>
 
-      <div className="mt-5 grid grid-cols-[60px_1fr_60px] items-center gap-3">
-        <button
-          type="button"
-          disabled
-          className="min-h-14 rounded-2xl border border-cocoa-900/10 bg-white/70 text-2xl font-bold text-cocoa-800/30"
-          aria-label={`Decrease ${candy.name} quantity`}
-        >
-          -
-        </button>
-        <div
-          className={clsx(
-            'min-h-14 rounded-2xl bg-cocoa-900 px-4 py-3 text-center text-2xl font-bold text-white transition',
-            busy && 'animate-pulse',
-          )}
-        >
-          {quantity}
-        </div>
-        <Button
-          type="button"
-          onClick={onAdd}
-          disabled={busy}
-          className="min-h-14 rounded-2xl px-0 text-2xl"
-          aria-label={`Increase ${candy.name} quantity`}
-        >
-          +
-        </Button>
+      <div className="mt-5 rounded-3xl bg-cream-50 p-4">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-cocoa-800/55">Sold quantity</p>
+        <p className="mt-2 font-display text-4xl text-cocoa-900">{soldQuantity}</p>
       </div>
 
-      <p className="mt-3 text-xs text-cocoa-800/60">
-        Sales are instant. Corrections should be done from the backend until a reverse-sale endpoint exists.
-      </p>
+      <div className="mt-4 min-w-0">
+        <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-cocoa-800/55">Sale to register</p>
+        <SaleQuantityControl
+          value={saleQuantity}
+          busy={busy}
+          onDecrease={onDecrease}
+          onIncrease={onIncrease}
+          onChange={onChange}
+          onSubmit={onSubmit}
+          submitLabel="Register sale"
+        />
+      </div>
     </article>
   )
 }

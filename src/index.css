@@ -63,6 +63,17 @@ input {
   font: inherit;
 }
 
+.hide-number-spin::-webkit-outer-spin-button,
+.hide-number-spin::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.hide-number-spin {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 .glass-card {
   @apply rounded-[28px] border border-white/60 bg-white/80 shadow-[0_20px_60px_rgba(126,62,22,0.12)] backdrop-blur;
 }

@@ -1,5 +1,6 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { SaleCandyCard } from '../components/SaleCandyCard'
+import { SaleQuantityControl } from '../components/SaleQuantityControl'
 import { Button } from '../components/ui/Button'
 import { Skeleton } from '../components/ui/Skeleton'
 import { useCandyStore } from '../stores/candyStore'
@@ -16,10 +17,25 @@ export function SessionPage() {
   const createSession = useSessionStore((state) => state.createSession)
   const registerSale = useSessionStore((state) => state.registerSale)
   const closeSession = useSessionStore((state) => state.closeSession)
+  const [saleInputs, setSaleInputs] = useState<Record<string, number>>({})
 
   const quantityMap = useMemo(() => {
     return Object.fromEntries(activeSession?.items.map((item) => [item.candyId, item.quantity]) ?? [])
   }, [activeSession])
+
+  function setSaleInput(candyId: string, value: number) {
+    setSaleInputs((current) => ({
+      ...current,
+      [candyId]: Math.max(1, value),
+    }))
+  }
+
+  async function submitSale(candyId: string) {
+    const quantity = Math.max(1, saleInputs[candyId] ?? 1)
+
+    await registerSale(candies, candyId, quantity)
+    setSaleInput(candyId, 1)
+  }
 
   if (loadingCandies && candies.length === 0) {
     return (
@@ -92,14 +108,18 @@ export function SessionPage() {
         </div>
       </section>
 
-      <section className="mt-5 grid gap-4 lg:hidden">
+      <section className="mt-5 grid min-w-0 gap-4 lg:hidden">
         {candies.map((candy) => (
           <SaleCandyCard
             key={candy.id}
             candy={candy}
-            quantity={quantityMap[candy.id] ?? 0}
+            soldQuantity={quantityMap[candy.id] ?? 0}
+            saleQuantity={saleInputs[candy.id] ?? 1}
             busy={submittingSaleIds.includes(candy.id)}
-            onAdd={() => registerSale(candies, candy.id)}
+            onDecrease={() => setSaleInput(candy.id, (saleInputs[candy.id] ?? 1) - 1)}
+            onIncrease={() => setSaleInput(candy.id, (saleInputs[candy.id] ?? 1) + 1)}
+            onChange={(value) => setSaleInput(candy.id, value)}
+            onSubmit={() => submitSale(candy.id)}
           />
         ))}
       </section>
@@ -111,8 +131,9 @@ export function SessionPage() {
               <tr className="bg-cream-50 text-left text-sm text-cocoa-800/70">
                 <th className="px-5 py-4">Candy</th>
                 <th className="px-5 py-4">Price</th>
-                <th className="px-5 py-4">Quantity</th>
-                <th className="px-5 py-4 text-right">Actions</th>
+                <th className="px-5 py-4">Sold</th>
+                <th className="px-5 py-4">Sale quantity</th>
+                <th className="px-5 py-4 text-right">Submit</th>
               </tr>
             </thead>
             <tbody>
@@ -120,11 +141,22 @@ export function SessionPage() {
                 <tr key={candy.id} className="border-t border-cocoa-900/10">
                   <td className="px-5 py-4 font-semibold text-cocoa-900">{candy.name}</td>
                   <td className="px-5 py-4 text-cocoa-800">{formatCurrency(candy.price)}</td>
-                  <td className="px-5 py-4 text-cocoa-900">{quantityMap[candy.id] ?? 0}</td>
-                  <td className="px-5 py-4 text-right">
-                    <Button disabled={submittingSaleIds.includes(candy.id)} onClick={() => registerSale(candies, candy.id)}>
-                      Add sale
-                    </Button>
+                  <td className="px-5 py-4 text-lg font-bold text-cocoa-900">{quantityMap[candy.id] ?? 0}</td>
+                  <td className="px-5 py-4">
+                    <div className="max-w-[220px]">
+                      <SaleQuantityControl
+                        value={saleInputs[candy.id] ?? 1}
+                        busy={submittingSaleIds.includes(candy.id)}
+                        onDecrease={() => setSaleInput(candy.id, (saleInputs[candy.id] ?? 1) - 1)}
+                        onIncrease={() => setSaleInput(candy.id, (saleInputs[candy.id] ?? 1) + 1)}
+                        onChange={(value) => setSaleInput(candy.id, value)}
+                        onSubmit={() => submitSale(candy.id)}
+                        submitLabel="Send"
+                      />
+                    </div>
+                  </td>
+                  <td className="px-5 py-4 text-right text-sm text-cocoa-800/55">
+                    Sends the chosen quantity in one request.
                   </td>
                 </tr>
               ))}
