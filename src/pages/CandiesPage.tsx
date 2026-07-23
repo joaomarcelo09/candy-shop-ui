@@ -2,16 +2,31 @@ import { useState } from 'react'
 import { CandyForm } from '../components/CandyForm'
 import { Button } from '../components/ui/Button'
 import { Skeleton } from '../components/ui/Skeleton'
-import { useCandyStore } from '../stores/candyStore'
+import { useCandiesQuery, useCreateCandyMutation, useUpdateCandyMutation } from '../hooks/useCandies'
 import type { Candy } from '../types/domain'
 import { formatCurrency, formatShortDate } from '../utils/format'
 
 export function CandiesPage() {
-  const candies = useCandyStore((state) => state.candies)
-  const loading = useCandyStore((state) => state.loading)
-  const createCandy = useCandyStore((state) => state.createCandy)
-  const updateCandy = useCandyStore((state) => state.updateCandy)
+  const candiesQuery = useCandiesQuery()
+  const createCandyMutation = useCreateCandyMutation()
+  const updateCandyMutation = useUpdateCandyMutation()
+  const candies = candiesQuery.data ?? []
+  const saving = createCandyMutation.isPending || updateCandyMutation.isPending
   const [selectedCandy, setSelectedCandy] = useState<Candy | null>(null)
+
+  if (candiesQuery.isError && candies.length === 0) {
+    return (
+      <div className="page-shell">
+        <section className="glass-card p-5 sm:p-6">
+          <h2 className="section-title">Unable to load candies</h2>
+          <p className="mt-3 text-sm text-cocoa-800/70">Check the connection and try loading the catalog again.</p>
+          <Button className="mt-5" disabled={candiesQuery.isFetching} onClick={() => void candiesQuery.refetch()}>
+            {candiesQuery.isFetching ? 'Trying again...' : 'Try again'}
+          </Button>
+        </section>
+      </div>
+    )
+  }
 
   return (
     <div className="page-shell">
@@ -33,12 +48,12 @@ export function CandiesPage() {
       <section className="mt-5 grid gap-5 xl:grid-cols-[380px_1fr]">
         <CandyForm
           candy={selectedCandy}
-          loading={loading}
+          loading={saving}
           onSubmit={async (payload) => {
             if (selectedCandy) {
-              await updateCandy(selectedCandy.id, payload)
+              await updateCandyMutation.mutateAsync({ id: selectedCandy.id, payload })
             } else {
-              await createCandy(payload)
+              await createCandyMutation.mutateAsync(payload)
             }
 
             setSelectedCandy(null)
@@ -58,7 +73,7 @@ export function CandiesPage() {
             </span>
           </div>
 
-          {loading && candies.length === 0 ? (
+          {candiesQuery.isPending && candies.length === 0 ? (
             <div className="mt-5 grid gap-3">
               <Skeleton className="h-28 w-full" />
               <Skeleton className="h-28 w-full" />

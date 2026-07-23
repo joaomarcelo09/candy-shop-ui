@@ -4,38 +4,71 @@ import { OrderCatalogCard } from '../components/OrderCatalogCard'
 import { SessionOrderList } from '../components/SessionOrderList'
 import { Button } from '../components/ui/Button'
 import { Skeleton } from '../components/ui/Skeleton'
-import { useCandyStore } from '../stores/candyStore'
-import { useSessionStore } from '../stores/sessionStore'
+import { useSessionController } from '../hooks/useSessionController'
 import { formatCurrency, formatShortDate } from '../utils/format'
-import { buildDraftTotal } from '../utils/session'
 
 export function SessionPage() {
-  const candies = useCandyStore((state) => state.candies)
-  const loadingCandies = useCandyStore((state) => state.loading)
-  const activeSession = useSessionStore((state) => state.activeSession)
-  const orders = useSessionStore((state) => state.orders)
-  const draftOrder = useSessionStore((state) => state.draftOrder)
-  const loadingSession = useSessionStore((state) => state.loading)
-  const submittingOrder = useSessionStore((state) => state.submittingOrder)
-  const deletingOrderIds = useSessionStore((state) => state.deletingOrderIds)
-  const totals = useSessionStore((state) => state.totals)
-  const createSession = useSessionStore((state) => state.createSession)
-  const addCandyToDraft = useSessionStore((state) => state.addCandyToDraft)
-  const updateDraftQuantity = useSessionStore((state) => state.updateDraftQuantity)
-  const removeDraftItem = useSessionStore((state) => state.removeDraftItem)
-  const clearDraftOrder = useSessionStore((state) => state.clearDraftOrder)
-  const submitDraftOrder = useSessionStore((state) => state.submitDraftOrder)
-  const deleteOrder = useSessionStore((state) => state.deleteOrder)
-  const closeSession = useSessionStore((state) => state.closeSession)
+  const {
+    candies,
+    activeSession,
+    orders,
+    draftOrder,
+    draftTotal,
+    totals,
+    deletingOrderIds,
+    isInitialLoading,
+    isCatalogError,
+    isSessionError,
+    isCatalogFetching,
+    isSessionFetching,
+    isOrdersError,
+    isOrdersFetching,
+    isStartingSession,
+    isSubmittingOrder,
+    isClosingSession,
+    retryCandies,
+    retrySession,
+    retryOrders,
+    startSession,
+    addCandyToDraft,
+    updateDraftQuantity,
+    removeDraftItem,
+    clearDraftOrder,
+    submitDraftOrder,
+    deleteOrder,
+    closeSession,
+  } = useSessionController()
 
   const soldQuantityByCandy = useMemo(() => {
     return Object.fromEntries(activeSession?.items.map((item) => [item.candyId, item.quantity]) ?? [])
   }, [activeSession])
 
-  const draftTotal = useMemo(() => buildDraftTotal(draftOrder), [draftOrder])
   const sessionOpen = activeSession?.status === 'OPEN'
 
-  if (loadingCandies && candies.length === 0) {
+  if (isCatalogError || isSessionError) {
+    return (
+      <div className="page-shell">
+        <section className="glass-card p-5 sm:p-6">
+          <h2 className="section-title">Unable to load the selling session</h2>
+          <p className="mt-3 text-sm text-cocoa-800/70">
+            Check the connection before starting or continuing a session.
+          </p>
+          <Button
+            className="mt-5"
+            disabled={isCatalogFetching || isSessionFetching}
+            onClick={() => {
+              if (isCatalogError) void retryCandies()
+              if (isSessionError) void retrySession()
+            }}
+          >
+            {isCatalogFetching || isSessionFetching ? 'Trying again...' : 'Try again'}
+          </Button>
+        </section>
+      </div>
+    )
+  }
+
+  if (isInitialLoading) {
     return (
       <div className="page-shell grid gap-4">
         <Skeleton className="h-40 w-full" />
@@ -56,8 +89,11 @@ export function SessionPage() {
           </p>
 
           <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center">
-            <Button disabled={loadingSession || candies.length === 0} onClick={() => createSession(candies)}>
-              {loadingSession ? 'Starting...' : 'Start Session'}
+            <Button
+              disabled={isStartingSession || candies.length === 0}
+              onClick={() => void startSession().catch(() => undefined)}
+            >
+              {isStartingSession ? 'Starting...' : 'Start Session'}
             </Button>
             <p className="text-sm text-cocoa-800/60">
               {candies.length === 0
@@ -83,10 +119,10 @@ export function SessionPage() {
           </div>
           <Button
             variant="danger"
-            disabled={loadingSession || totals.candiesSold === 0 || !sessionOpen}
-            onClick={() => closeSession()}
+            disabled={isClosingSession || totals.candiesSold === 0 || !sessionOpen}
+            onClick={() => void closeSession().catch(() => undefined)}
           >
-            {loadingSession ? 'Finishing...' : 'Finish Session'}
+            {isClosingSession ? 'Finishing...' : 'Finish Session'}
           </Button>
         </div>
 
@@ -132,7 +168,7 @@ export function SessionPage() {
                   key={candy.id}
                   candy={candy}
                   soldQuantity={soldQuantityByCandy[candy.id] ?? 0}
-                  disabled={!sessionOpen || submittingOrder}
+                  disabled={!sessionOpen || isSubmittingOrder}
                   onAdd={() => addCandyToDraft(candy)}
                 />
               ))}
@@ -143,7 +179,10 @@ export function SessionPage() {
             orders={orders}
             sessionOpen={sessionOpen}
             deletingOrderIds={deletingOrderIds}
-            onDelete={(orderId) => deleteOrder(orderId, candies)}
+            error={isOrdersError}
+            refreshing={isOrdersFetching}
+            onDelete={(orderId) => void deleteOrder(orderId).catch(() => undefined)}
+            onRetry={() => void retryOrders()}
           />
         </div>
 
@@ -167,12 +206,12 @@ export function SessionPage() {
           <DraftOrderPanel
             items={draftOrder}
             total={draftTotal}
-            disabled={!sessionOpen || submittingOrder}
+            disabled={!sessionOpen || isSubmittingOrder}
             onDecrease={(candyId, nextQuantity) => updateDraftQuantity(candyId, nextQuantity)}
             onIncrease={(candyId, nextQuantity) => updateDraftQuantity(candyId, nextQuantity)}
             onChange={(candyId, nextQuantity) => updateDraftQuantity(candyId, nextQuantity)}
             onRemove={removeDraftItem}
-            onSubmit={() => submitDraftOrder(candies)}
+            onSubmit={() => void submitDraftOrder().catch(() => undefined)}
             onClear={clearDraftOrder}
           />
         </div>

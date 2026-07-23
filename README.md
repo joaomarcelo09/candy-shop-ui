@@ -5,7 +5,8 @@ Mobile-first frontend dashboard for candy shop sales management, built to suppor
 ## Stack
 
 - React + Vite + TypeScript
-- Zustand for state
+- TanStack Query for server state and requests
+- Zustand for persisted authentication state
 - Zod for validation
 - Axios for API calls
 - React Router for navigation
@@ -53,8 +54,10 @@ src/
   hooks/
   layouts/
   pages/
+  queries/
   schemas/
   stores/
+  test/
   types/
   utils/
 ```
@@ -83,6 +86,20 @@ Vite runs by default at `http://localhost:5173`.
 ```bash
 pnpm build
 pnpm preview
+```
+
+## Tests
+
+Run the automated test suite once:
+
+```bash
+pnpm test
+```
+
+Run tests in watch mode while developing:
+
+```bash
+pnpm test:watch
 ```
 
 ## Docker
@@ -143,5 +160,7 @@ Table columns:
 ## Notes
 
 - Linting is available with `pnpm lint`.
-- The repo does not currently include automated frontend tests.
-- Manual QA is important for session start, order submit, order delete, refresh persistence, and session close flows.
+- TanStack Query keeps API data in memory, invalidates related session data after mutations, and refetches on focus or reconnect.
+- The Zustand store is limited to the persisted authentication token and decoded user.
+- Automated tests cover authentication, query invalidation, draft behavior, order submission/deletion, and session closing.
+- Manual QA remains important for responsive layouts, PDF downloads, and the complete live-selling flow against the backend.

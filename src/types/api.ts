@@ -1,4 +1,4 @@
-import type { Candy, DraftOrderItem, Session, SessionOrder, User } from './domain'
+import type { User } from './domain'
 
 export interface LoginRequest {
   email: string
@@ -81,38 +81,26 @@ export interface AuthStateSnapshot {
 }
 
 export interface AuthStoreState extends AuthStateSnapshot {
-  loading: boolean
-  login: (payload: LoginRequest) => Promise<void>
+  setAuth: (token: string, user: User | null) => void
   logout: () => void
 }
 
-export interface CandyStoreState {
-  candies: Candy[]
-  loading: boolean
-  fetchCandies: () => Promise<Candy[]>
-  createCandy: (payload: CandyPayload) => Promise<void>
-  updateCandy: (id: string, payload: CandyPayload) => Promise<void>
+export interface UpdateCandyVariables {
+  id: string
+  payload: CandyPayload
 }
 
-export interface SessionStoreState {
-  activeSession: Session | null
-  orders: SessionOrder[]
-  draftOrder: DraftOrderItem[]
-  loading: boolean
-  submittingOrder: boolean
-  deletingOrderIds: string[]
-  totals: {
-    candiesSold: number
-    estimatedTotal: number
-  }
-  fetchCurrentSession: (candies: Candy[]) => Promise<Session | null>
-  createSession: (candies: Candy[]) => Promise<void>
-  fetchSessionOrders: (sessionId: string, candies: Candy[]) => Promise<SessionOrder[]>
-  addCandyToDraft: (candy: Candy) => void
-  updateDraftQuantity: (candyId: string, quantity: number) => void
-  removeDraftItem: (candyId: string) => void
-  clearDraftOrder: () => void
-  submitDraftOrder: (candies: Candy[]) => Promise<void>
-  deleteOrder: (orderId: string, candies: Candy[]) => Promise<void>
-  closeSession: () => Promise<void>
+export interface SessionOrderVariables {
+  sessionId: string
+  payload: SessionOrderPayload
+}
+
+export interface DeleteSessionOrderVariables {
+  sessionId: string
+  orderId: string
+}
+
+export interface CurrentSessionResource {
+  summary: SessionSummaryResponse
+  details: SessionDetailsResponse
 }

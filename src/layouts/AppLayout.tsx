@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { NavLink } from 'react-router-dom'
-import { useBootstrap } from '../hooks/useBootstrap'
 import { useAuthStore } from '../stores/authStore'
 import { Button } from '../components/ui/Button'
 
@@ -11,10 +11,14 @@ const navigationItems = [
 ]
 
 export function AppLayout({ children }: PropsWithChildren) {
-  useBootstrap()
-
+  const queryClient = useQueryClient()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
+
+  function handleLogout() {
+    queryClient.clear()
+    logout()
+  }
 
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[280px_1fr]">
@@ -47,7 +51,7 @@ export function AppLayout({ children }: PropsWithChildren) {
         <div className="glass-card mt-auto p-4">
           <p className="text-sm font-semibold text-cocoa-900">{user?.name ?? 'Seller'}</p>
           <p className="mt-1 text-xs text-cocoa-800/60">{user?.email}</p>
-          <Button variant="secondary" className="mt-4 w-full" onClick={logout}>
+          <Button variant="secondary" className="mt-4 w-full" onClick={handleLogout}>
             Logout
           </Button>
         </div>

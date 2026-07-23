@@ -3,13 +3,12 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
+import { useLoginMutation } from '../hooks/useAuth'
 import { loginSchema, type LoginSchema } from '../schemas/auth'
-import { useAuthStore } from '../stores/authStore'
 
 export function LoginPage() {
   const navigate = useNavigate()
-  const login = useAuthStore((state) => state.login)
-  const loading = useAuthStore((state) => state.loading)
+  const loginMutation = useLoginMutation()
 
   const {
     register,
@@ -39,7 +38,7 @@ export function LoginPage() {
           className="mt-8 flex flex-col gap-4"
           onSubmit={handleSubmit(async (values) => {
             try {
-              await login(values)
+              await loginMutation.mutateAsync(values)
               navigate('/dashboard', { replace: true })
             } catch {
               return
@@ -54,8 +53,8 @@ export function LoginPage() {
             error={errors.password?.message}
             {...register('password')}
           />
-          <Button type="submit" disabled={loading} fullWidth>
-            {loading ? 'Signing in...' : 'Enter dashboard'}
+          <Button type="submit" disabled={loginMutation.isPending} fullWidth>
+            {loginMutation.isPending ? 'Signing in...' : 'Enter dashboard'}
           </Button>
         </form>
       </div>
