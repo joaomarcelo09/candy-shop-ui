@@ -1,29 +1,16 @@
 import axios from 'axios'
-import toast from 'react-hot-toast'
 
-const AUTH_STORAGE_KEY = 'candy-shop-auth'
+export const AUTH_STORAGE_KEY = 'candy-shop-auth'
 
-function readToken() {
+function readStoredToken() {
   try {
-    const raw = window.localStorage.getItem(AUTH_STORAGE_KEY)
+    const rawAuth = window.localStorage.getItem(AUTH_STORAGE_KEY)
+    if (!rawAuth) return null
 
-    if (!raw) {
-      return null
-    }
-
-    const parsed = JSON.parse(raw) as { state?: { token?: string | null } }
-
-    return parsed.state?.token ?? null
+    const storedAuth = JSON.parse(rawAuth) as { state?: { token?: string | null } }
+    return storedAuth.state?.token ?? null
   } catch {
     return null
-  }
-}
-
-function redirectToLogin() {
-  window.localStorage.removeItem(AUTH_STORAGE_KEY)
-
-  if (window.location.pathname !== '/login') {
-    window.location.href = '/login'
   }
 }
 
@@ -32,11 +19,9 @@ export const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-  const token = readToken()
+  const token = readStoredToken()
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
+  if (token) config.headers.Authorization = `Bearer ${token}`
 
   return config
 })
@@ -45,18 +30,14 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status as number | undefined
-    const message =
-      (error.response?.data?.message as string | string[] | undefined) ??
-      'Unexpected request failure'
-
     if (status === 401) {
-      redirectToLogin()
-    }
+      window.localStorage.removeItem(AUTH_STORAGE_KEY)
 
-    toast.error(Array.isArray(message) ? message.join(', ') : message)
+      if (window.location.pathname !== '/login') {
+        window.location.assign('/login')
+      }
+    }
 
     return Promise.reject(error)
   },
 )
-
-export { AUTH_STORAGE_KEY }

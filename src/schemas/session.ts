@@ -1,21 +1,11 @@
 import { z } from 'zod'
 
-export const sessionSaleSchema = z.object({
-  candy_id: z.uuid(),
-  quantity: z.number().int().positive(),
+export const orderLineSchema = z.object({
+  candyId: z.string().min(1),
+  quantity: z.number().int().min(1),
 })
 
-export const sessionOrderSchema = z.object({
-  items: z
-    .array(
-      z.object({
-        candy_id: z.uuid(),
-        quantity: z.number().int().positive(),
-      }),
-    )
-    .min(1),
-})
-
-export const closeSessionSchema = z.object({
-  sessionId: z.uuid(),
+export const createOrderSchema = z.object({
+  lines: z.array(orderLineSchema).min(1, 'Adicione ao menos um doce'),
+  pixReceiptUrl: z.string().url().optional(),
 })

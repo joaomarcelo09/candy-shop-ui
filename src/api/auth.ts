@@ -1,8 +1,16 @@
-import type { LoginRequest, LoginResponse } from '../types/api'
-import { api } from './http'
+import type { AxiosInstance } from 'axios'
+import type { AuthSession, LoginResponse } from '../types/auth'
+import type { AuthApi } from './contracts'
 
-export async function login(payload: LoginRequest) {
-  const response = await api.post<LoginResponse>('/auth/login', payload)
+export function createAuthApi(client: AxiosInstance): AuthApi {
+  return {
+    async login(payload): Promise<AuthSession> {
+      const response = await client.post<LoginResponse>('/auth/login', payload)
+      const token = response.data.token ?? response.data.accessToken
 
-  return response.data
+      if (!token) throw new Error('A resposta do login não contém um token de acesso')
+
+      return { token, user: response.data.user }
+    },
+  }
 }

@@ -1,15 +1,21 @@
-import { QueryClient } from '@tanstack/react-query'
+import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query'
+import { handleError } from './lib/errorHandler'
 
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 30_000,
-      retry: false,
-      refetchOnReconnect: true,
-      refetchOnWindowFocus: true,
+export function createAppQueryClient() {
+  return new QueryClient({
+    queryCache: new QueryCache({ onError: handleError }),
+    mutationCache: new MutationCache({ onError: handleError }),
+    defaultOptions: {
+      queries: {
+        retry: 1,
+        refetchOnWindowFocus: false,
+        staleTime: 30_000,
+      },
+      mutations: {
+        retry: false,
+      },
     },
-    mutations: {
-      retry: false,
-    },
-  },
-})
+  })
+}
+
+export const queryClient = createAppQueryClient()

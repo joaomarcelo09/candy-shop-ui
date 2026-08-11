@@ -1,29 +1,26 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { AUTH_STORAGE_KEY } from '../api/http'
-import type { AuthStoreState } from '../types/api'
+import type { AuthUser } from '../types/auth'
 
-export const useAuthStore = create<AuthStoreState>()(
+interface AuthStore {
+  token: string | null
+  user: AuthUser | null
+  setSession: (token: string, user: AuthUser) => void
+  logout: () => void
+}
+
+export const useAuthStore = create<AuthStore>()(
   persist(
     (set) => ({
       token: null,
       user: null,
-      setAuth(token, user) {
-        set({ token, user })
-      },
-      logout() {
-        set({
-          token: null,
-          user: null,
-        })
-      },
+      setSession: (token, user) => set({ token, user }),
+      logout: () => set({ token: null, user: null }),
     }),
     {
       name: AUTH_STORAGE_KEY,
-      partialize: (state) => ({
-        token: state.token,
-        user: state.user,
-      }),
+      partialize: ({ token, user }) => ({ token, user }),
     },
   ),
 )
