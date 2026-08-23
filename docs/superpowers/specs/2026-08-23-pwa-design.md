@@ -10,6 +10,8 @@ Transformar o candy-shop-ui em um PWA instalável: o usuário adiciona o dashboa
 
 Bônus aceito do escopo: o app abre offline exibindo a interface (shell pré-cacheado). Dados de API não são cacheados.
 
+**Requisito inegociável:** vender doces em uma sessão exige conexão ativa. O PWA é apenas a "casca" instalável — toda operação de venda (criar sessão, registrar pedido, deletar pedido, fechar sessão) é uma chamada de API em tempo real e deve falhar com feedback claro quando offline. O shell offline existe só para o app abrir e exibir a UI, nunca para simular operação de venda.
+
 ## Fora de escopo (YAGNI)
 
 - Fila offline de pedidos (enfileirar vendas feitas sem internet)
