@@ -44,8 +44,8 @@ Configurado via opções do `vite-plugin-pwa` em `vite.config.ts`:
 
 ### 2. Ícones
 
-- Fonte: `src/assets/logo.png` (1254×1254, fundo preto).
-- Geração: `@vite-pwa/assets-generator` (companheiro oficial do plugin), executado uma vez, com padding de ~10% no ícone maskable (zona de segurança para os recortes redondos do Android).
+- Fonte: `public/logo.png` (movido de `src/assets/logo.png` — o gerador escreve os assets na mesma pasta da imagem-fonte, e `public/` é copiada ao build). O logo não é importado por nenhum componente.
+- Geração: `@vite-pwa/assets-generator` (companheiro oficial do plugin), executado uma vez via script `generate-pwa-assets`, com o preset `minimal-2023` (padding padrão de zona de segurança no ícone maskable, para os recortes redondos do Android).
 - Saída em `public/`: `pwa-64x64.png`, `pwa-192x192.png`, `pwa-512x512.png`, `maskable-icon-512x512.png`, `apple-touch-icon.png` (180×180).
 - PNGs commitados no repositório (geração não entra no build do Docker).
 
