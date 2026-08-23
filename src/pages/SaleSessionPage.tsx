@@ -412,29 +412,39 @@ export function SaleSessionPage() {
               <p className="mt-2 text-sm font-bold text-cocoa-900">Nenhuma venda ainda</p>
             </Card>
           ) : (
-            <div className="grid gap-2">
+            <div
+              className="grid max-h-[25rem] gap-2 overflow-y-auto overscroll-contain pr-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-tangerine-500"
+              role="region"
+              aria-label="Lista de vendas registradas"
+              tabIndex={0}
+            >
               {orders.map((order, index) => (
-                <Card key={order.id} className="p-3.5 shadow-none">
-                  <div className="flex items-start gap-3">
+                <Card key={order.id} className="h-[128px] overflow-hidden p-3.5 shadow-none">
+                  <div className="flex h-full min-h-0 items-start gap-3">
                     <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-mint-50 text-sm font-bold text-mint-500">{orders.length - index}</div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-sm font-bold text-cocoa-900">{formatCurrency(order.total)}</p>
-                        <p className="text-[11px] text-cocoa-800/45">{timeFormatter.format(new Date(order.createdAt))}</p>
+                    <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col">
+                      <div className="flex shrink-0 items-center justify-between gap-2">
+                        <p className="shrink-0 whitespace-nowrap text-sm font-bold text-cocoa-900">{formatCurrency(order.total)}</p>
+                        <p className="shrink-0 whitespace-nowrap text-[11px] text-cocoa-800/45">{timeFormatter.format(new Date(order.createdAt))}</p>
                       </div>
-                      <p className="mt-1 text-xs leading-5 text-cocoa-800/55">
+                      <div
+                        className="mt-1 min-h-0 flex-1 overflow-y-auto break-words pr-1 text-xs leading-5 text-cocoa-800/55 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-tangerine-500"
+                        role="region"
+                        tabIndex={0}
+                        aria-label={`Itens da venda ${orders.length - index}`}
+                      >
                         {order.lines.map((line) => `${line.quantity}× ${line.candyName}`).join(' · ')}
-                      </p>
-                      {order.pixReceiptUrl ? <p className="mt-1 flex items-center gap-1 text-[11px] font-bold text-mint-500"><Image className="size-3" /> PIX anexado</p> : null}
+                      </div>
+                      {order.pixReceiptUrl ? <p className="mt-1 flex shrink-0 items-center gap-1 text-[11px] font-bold text-mint-500"><Image className="size-3 shrink-0" /> PIX anexado</p> : null}
                     </div>
                     {sessionOpen ? (
                       orderToDelete === order.id ? (
-                        <div className="flex gap-1">
-                          <button type="button" className="min-h-9 rounded-xl bg-strawberry-600 px-2.5 text-[11px] font-bold text-white" onClick={() => void handleDeleteOrder(order.id)} disabled={saving}>Excluir</button>
-                          <button type="button" className="grid size-9 place-items-center rounded-xl bg-cream-100" onClick={() => setOrderToDelete(null)} aria-label="Cancelar exclusão"><X className="size-4" /></button>
+                        <div className="flex shrink-0 self-stretch flex-col gap-1">
+                          <button type="button" className="grid min-h-0 flex-1 place-items-center rounded-xl bg-strawberry-600 px-2.5 text-[11px] font-bold text-white" onClick={() => void handleDeleteOrder(order.id)} disabled={saving}>Excluir</button>
+                          <button type="button" className="grid min-h-0 flex-1 place-items-center rounded-xl bg-cream-100" onClick={() => setOrderToDelete(null)} aria-label="Cancelar exclusão"><X className="size-4" /></button>
                         </div>
                       ) : (
-                        <button type="button" className="grid size-10 shrink-0 place-items-center rounded-xl text-cocoa-800/35 hover:bg-strawberry-50 hover:text-strawberry-600" onClick={() => setOrderToDelete(order.id)} aria-label={`Excluir venda ${orders.length - index}`}><Trash2 className="size-4" /></button>
+                        <button type="button" className="grid size-11 shrink-0 place-items-center rounded-xl text-cocoa-800/35 hover:bg-strawberry-50 hover:text-strawberry-600" onClick={() => setOrderToDelete(order.id)} aria-label={`Excluir venda ${orders.length - index}`}><Trash2 className="size-4" /></button>
                       )
                     ) : null}
                   </div>
