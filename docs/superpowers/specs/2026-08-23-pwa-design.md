@@ -46,13 +46,13 @@ Configurado via opções do `vite-plugin-pwa` em `vite.config.ts`:
 
 - Fonte: `public/logo.png` (movido de `src/assets/logo.png` — o gerador escreve os assets na mesma pasta da imagem-fonte, e `public/` é copiada ao build). O logo não é importado por nenhum componente.
 - Geração: `@vite-pwa/assets-generator` (companheiro oficial do plugin), executado uma vez via script `generate-pwa-assets`, com o preset `minimal-2023` (padding padrão de zona de segurança no ícone maskable, para os recortes redondos do Android).
-- Saída em `public/`: `pwa-64x64.png`, `pwa-192x192.png`, `pwa-512x512.png`, `maskable-icon-512x512.png`, `apple-touch-icon.png` (180×180).
+- Saída em `public/`: `pwa-64x64.png`, `pwa-192x192.png`, `pwa-512x512.png`, `maskable-icon-512x512.png`, `apple-touch-icon-180x180.png`, `favicon.ico` (48×48, bônus — navegadores legados).
 - PNGs commitados no repositório (geração não entra no build do Docker).
 
 ### 3. index.html
 
 - O plugin injeta `<link rel="manifest">` automaticamente no build.
-- Adições manuais: `<meta name="theme-color" content="#2d160f">`, `<link rel="apple-touch-icon" href="/apple-touch-icon.png">`, `<meta name="apple-mobile-web-app-capable" content="yes">`, `<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">`, `<meta name="apple-mobile-web-app-title" content="Doces">` — necessários para a instalação em tela cheia no iOS/Safari.
+- Adições manuais: `<meta name="theme-color" content="#2d160f">`, `<link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png">`, `<meta name="apple-mobile-web-app-capable" content="yes">`, `<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">`, `<meta name="apple-mobile-web-app-title" content="Doces">` — necessários para a instalação em tela cheia no iOS/Safari.
 
 ### 4. Service worker e cache
 
